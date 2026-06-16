@@ -1,0 +1,158 @@
+/* ============================================
+   Notifications
+   ============================================ */
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  transition: background var(--transition-fast);
+  cursor: pointer;
+  animation: slideUp 0.3s ease;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.notification-item:last-child { border-bottom: none; }
+.notification-item:hover {
+  background: var(--bg-primary);
+}
+.notification-item.unread {
+  background: rgba(79, 109, 245, 0.03);
+}
+.notification-item.unread::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--accent-blue);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border-subtle);
+}
+.notification-icon.status { background: rgba(79,109,245,0.08); color: var(--accent-blue); }
+.notification-icon.assignment { background: rgba(139,92,246,0.08); color: var(--accent-purple); }
+.notification-icon.sla { background: rgba(245,158,11,0.08); color: var(--warning); }
+.notification-icon.comment { background: rgba(14,165,233,0.08); color: var(--accent-teal); }
+.notification-icon.info { background: var(--bg-input); color: var(--text-muted); }
+.notification-icon svg { width: 18px; height: 18px; }
+
+.notification-content { flex: 1; min-width: 0; }
+.notification-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  margin-bottom: 2px;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+.notification-description {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.notification-time {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Notification Dropdown ─── */
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--space-sm);
+  width: 380px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  animation: slideDown 0.2s ease;
+  overflow: hidden;
+}
+
+.notification-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1.5px solid var(--border-subtle);
+  background: var(--bg-primary);
+}
+.notification-dropdown-header h3 {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notification-dropdown-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-dropdown-footer {
+  padding: var(--space-sm) var(--space-lg);
+  border-top: 1.5px solid var(--border-subtle);
+  text-align: center;
+  background: var(--bg-primary);
+}
+.notification-dropdown-footer a {
+  font-size: var(--font-sm);
+  font-weight: 500;
+}
+
+/* ─── SSE Connection Status ─── */
+.sse-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid transparent;
+}
+.sse-status.connected {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16,185,129,0.2);
+}
+.sse-status.disconnected {
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239,68,68,0.2);
+}
+.sse-status .sse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.sse-status.connected .sse-dot {
+  background: var(--success);
+  animation: pulse 2s ease infinite;
+}
+.sse-status.disconnected .sse-dot {
+  background: var(--error);
+}

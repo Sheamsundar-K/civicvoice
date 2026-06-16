@@ -1,0 +1,148 @@
+spring:
+  application:
+    name: civicvoice-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/civicvoice_db
+    username: postgres
+    password: Nani898501
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: false
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@civicvoice.gov}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 100
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: never
+    include-stacktrace: never
+
+# ─── Application-specific properties ───────────────────────────────────────────
+app:
+  google:
+    maps:
+      api-key: ${GOOGLE_MAPS_API_KEY:dummy-key}
+  jwt:
+    secret: ${JWT_SECRET:civicvoice-super-secret-jwt-signing-key-must-be-at-least-256-bits-long}
+    expiration-ms: 3600000          # 1 hour
+    refresh-expiration-ms: 604800000 # 7 days
+
+  geo:
+    deduplication-radius-meters: 50   # flag issues within 50m + same category as duplicates
+    max-radius-km: 50                 # max radius for nearby-search
+
+  rate-limit:
+    issue-submit-per-hour: 10        # max 10 issue submissions per citizen per hour
+    auth-attempts-per-minute: 5
+
+  cors:
+    allowed-origins:
+      - "http://localhost:3000"
+      - "http://localhost:3333"
+      - "http://localhost:4200"
+      - "${FRONTEND_URL:https://civicvoice.gov}"
+
+  file:
+    upload-dir: ${FILE_UPLOAD_DIR:./uploads}
+    max-size-mb: 10
+    allowed-types:
+      - image/jpeg
+      - image/png
+      - image/webp
+      - video/mp4
+
+  sla:
+    critical-hours: 24
+    high-hours: 72
+    medium-hours: 168   # 7 days
+    low-hours: 720      # 30 days
+
+# ─── Actuator ───────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# ─── OpenAPI / Swagger ──────────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+
+# ─── Logging ────────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.civicvoice: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+

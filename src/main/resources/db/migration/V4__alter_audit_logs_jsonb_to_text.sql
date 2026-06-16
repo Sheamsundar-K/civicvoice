@@ -1,0 +1,2 @@
+ALTER TABLE audit_logs ALTER COLUMN old_value TYPE TEXT;
+ALTER TABLE audit_logs ALTER COLUMN new_value TYPE TEXT;

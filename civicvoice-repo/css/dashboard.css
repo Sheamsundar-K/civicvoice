@@ -1,0 +1,272 @@
+/* ============================================
+   Dashboard & Analytics
+   ============================================ */
+
+/* ─── Stats Cards Grid ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  animation: scaleIn 0.4s ease;
+  box-shadow: var(--shadow-sm);
+}
+.stat-card:hover {
+  border-color: var(--border-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+.stat-card.blue::after { background: var(--accent-blue); }
+.stat-card.teal::after { background: var(--accent-teal); }
+.stat-card.purple::after { background: var(--accent-purple); }
+.stat-card.amber::after { background: var(--accent-amber); }
+
+/* Left accent border */
+.stat-card.blue { border-left: 4px solid var(--accent-blue); }
+.stat-card.teal { border-left: 4px solid var(--accent-teal); }
+.stat-card.purple { border-left: 4px solid var(--accent-purple); }
+.stat-card.amber { border-left: 4px solid var(--accent-amber); }
+
+.stat-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+}
+.stat-card.blue .stat-card-icon { background: var(--accent-blue-glow); color: var(--accent-blue); }
+.stat-card.teal .stat-card-icon { background: var(--accent-teal-glow); color: var(--accent-teal); }
+.stat-card.purple .stat-card-icon { background: var(--accent-purple-glow); color: var(--accent-purple); }
+.stat-card.amber .stat-card-icon { background: var(--accent-amber-glow); color: var(--accent-amber); }
+
+.stat-card-icon svg { width: 22px; height: 22px; }
+
+.stat-card-value {
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  margin-bottom: 2px;
+  animation: countUp 0.6s ease;
+  color: var(--text-primary);
+}
+.stat-card-label {
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.stat-card-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: var(--space-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.stat-card-change.positive {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+.stat-card-change.negative {
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ─── Dashboard Grid ─── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.dashboard-panel {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  animation: slideUp 0.4s ease;
+  box-shadow: var(--shadow-sm);
+}
+.dashboard-panel.full-width {
+  grid-column: 1 / -1;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  border-bottom: 1.5px solid var(--border-subtle);
+  background: var(--bg-primary);
+}
+.panel-title {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.panel-subtitle {
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+}
+
+/* ─── Chart Container ─── */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ─── SLA Gauges ─── */
+.sla-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-lg);
+}
+
+.sla-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.gauge-ring {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-ring svg {
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg);
+}
+.gauge-ring .gauge-bg {
+  fill: none;
+  stroke: var(--bg-input);
+  stroke-width: 8;
+}
+.gauge-ring .gauge-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gauge-ring .gauge-fill.green { stroke: var(--success); }
+.gauge-ring .gauge-fill.orange { stroke: var(--warning); }
+.gauge-ring .gauge-fill.red { stroke: var(--error); }
+
+.gauge-value {
+  position: absolute;
+  font-size: var(--font-lg);
+  font-weight: 800;
+}
+.gauge-value.green { color: var(--success); }
+.gauge-value.orange { color: var(--warning); }
+.gauge-value.red { color: var(--error); }
+
+.gauge-label {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ─── Heatmap Panel ─── */
+.heatmap-container {
+  width: 100%;
+  height: 400px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-input);
+  position: relative;
+}
+
+/* ─── Category Breakdown ─── */
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.category-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.category-name {
+  flex: 1;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.category-count {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.category-bar {
+  width: 100px;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.category-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s ease;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
