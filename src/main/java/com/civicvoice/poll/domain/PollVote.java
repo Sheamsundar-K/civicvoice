@@ -16,7 +16,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PollVote extends BaseEntity {
+public class PollVote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,6 +31,10 @@ public class PollVote extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "poll_option_id", nullable = false)
+    @JoinColumn(name = "option_id", nullable = false)
     private PollOption option;
+
+    @Builder.Default
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private java.time.OffsetDateTime createdAt = java.time.OffsetDateTime.now();
 }

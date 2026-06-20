@@ -22,6 +22,12 @@ import {
 // Initialize auth
 auth.init();
 
+// Initialize theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+
 const app = document.getElementById('app');
 const router = new Router();
 

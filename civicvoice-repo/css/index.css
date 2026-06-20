@@ -99,6 +99,25 @@
   --topbar-height:      64px;
 }
 
+[data-theme="dark"] {
+  --bg-primary:       #111827;
+  --bg-secondary:     #1f2937;
+  --bg-card:          #1f2937;
+  --bg-card-hover:    #374151;
+  --bg-input:         #374151;
+  --bg-surface:       rgba(31, 41, 55, 0.85);
+  --bg-glass:         rgba(31, 41, 55, 0.75);
+
+  --border-primary:   rgba(79, 109, 245, 0.4);
+  --border-subtle:    #374151;
+  --border-hover:     rgba(79, 109, 245, 0.6);
+
+  --text-primary:     #f9fafb;
+  --text-secondary:   #d1d5db;
+  --text-muted:       #9ca3af;
+  --text-accent:      #818cf8;
+}
+
 /* ─── Reset & Base ─── */
 *, *::before, *::after {
   margin: 0;

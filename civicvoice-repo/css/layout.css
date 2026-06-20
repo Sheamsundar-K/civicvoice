@@ -291,6 +291,7 @@
 .content {
   flex: 1;
   padding: var(--space-xl);
+  animation: slideUp 0.4s ease-out forwards;
 }
 
 .page-header {

@@ -199,7 +199,10 @@ export function renderLayout(app, router, pageTitle, contentRenderer) {
               <div class="sidebar-user-role">${capitalize(user?.role || 'Guest')}</div>
             </div>
           </div>
-          <div class="nav-item" id="logout-btn" style="margin-top: 4px; color: ${user ? 'var(--error)' : 'var(--accent-blue)'};">
+          <div class="nav-item" id="theme-toggle-btn" style="margin-top: 4px; color: var(--text-secondary); cursor: pointer;">
+            🌙<span>Toggle Theme</span>
+          </div>
+          <div class="nav-item" id="logout-btn" style="margin-top: 4px; color: ${user ? 'var(--error)' : 'var(--accent-blue)'}; cursor: pointer;">
             ${user ? icons.logout + '<span>Sign Out</span>' : '🔑<span>Sign In</span>'}
           </div>
         </div>
@@ -239,8 +242,20 @@ export function renderLayout(app, router, pageTitle, contentRenderer) {
     });
   });
 
+  // Theme toggle
+  document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+
   // Logout / Login toggle
-  document.getElementById('logout-btn').addEventListener('click', () => {
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
     if (user) {
       auth.logout();
       showToast('Signed out successfully.', 'info');
@@ -342,6 +357,10 @@ export function renderIssuesContent(el, router) {
       ${viewMode === 'grid' ? (loading ? '<div class="empty-state"><div class="spinner"></div><h3>Loading issues...</h3></div>' : renderIssueCards(issues)) : renderMapView()}
     `;
 
+    if (viewMode === 'map') {
+      setTimeout(() => initMap(issues), 0);
+    }
+
     // Bind events
     document.getElementById('view-grid')?.addEventListener('click', () => { viewMode = 'grid'; render(); });
     document.getElementById('view-map')?.addEventListener('click', () => { viewMode = 'map'; render(); });
@@ -428,16 +447,46 @@ function renderIssueCards(issues) {
   `;
 }
 
+let mapInstance = null;
+function initMap(issues) {
+  if (!window.L) return;
+  const mapContainer = document.getElementById('issues-map');
+  if (!mapContainer) return;
+  if (mapInstance) {
+    mapInstance.remove();
+  }
+  mapInstance = L.map('issues-map').setView([20.5937, 78.9629], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(mapInstance);
+
+  const bounds = [];
+  issues.forEach(issue => {
+    if (issue.latitude && issue.longitude) {
+      const lat = parseFloat(issue.latitude);
+      const lng = parseFloat(issue.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        bounds.push([lat, lng]);
+        const popupContent = `
+          <div style="font-family: var(--font-family);">
+            <strong style="display:block; margin-bottom: 4px;">${issue.title}</strong>
+            <span class="badge badge-priority-${(issue.priority || 'MEDIUM').toLowerCase()}">${issue.priority || 'MEDIUM'}</span>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: var(--text-muted);">${formatCategory(issue.category)}</p>
+          </div>
+        `;
+        L.marker([lat, lng]).addTo(mapInstance).bindPopup(popupContent);
+      }
+    }
+  });
+  if (bounds.length > 0) {
+    mapInstance.fitBounds(bounds, { padding: [50, 50] });
+  }
+}
+
 function renderMapView() {
   return `
     <div class="map-container">
-      <div class="map-placeholder">
-        ${icons.map}
-        <h3>Map View</h3>
-        <p style="font-size: var(--font-sm); max-width: 300px; text-align: center;">
-          Connect your Google Maps API key to see issues plotted on an interactive map.
-        </p>
-      </div>
+      <div id="issues-map" style="height: 500px; width: 100%; border-radius: var(--radius-lg); z-index: 1;"></div>
     </div>
   `;
 }
@@ -1019,9 +1068,11 @@ function renderPollCard(poll, selectedOptId) {
             </div>
           `).join('')}
         </div>
-        <button class="btn btn-primary submit-vote-btn" data-pollid="${poll.id}" style="width: 100%;">
-          ${icons.vote} Submit Vote
-        </button>
+        <div style="text-align: center; margin-top: 12px;">
+          <button class="btn btn-primary btn-sm submit-vote-btn" data-pollid="${poll.id}">
+            ${icons.vote} Submit Vote
+          </button>
+        </div>
       `}
 
       <div class="poll-card-footer">
@@ -1149,6 +1200,16 @@ export async function renderDashboardContent(el, router) {
 
     <div class="dashboard-panel full-width" style="margin-top: var(--space-xl);">
       <div class="panel-header">
+        <div class="panel-title">Trend Analytics</div>
+        <div class="panel-subtitle">Issues submitted vs resolved over the last 14 days</div>
+      </div>
+      <div style="padding: var(--space-lg); height: 300px; width: 100%; position: relative;">
+        <canvas id="trend-chart" style="width: 100%; height: 100%;"></canvas>
+      </div>
+    </div>
+
+    <div class="dashboard-panel full-width" style="margin-top: var(--space-xl);">
+      <div class="panel-header">
         <div class="panel-title">Recent Issues</div>
         <div class="panel-subtitle">Latest issues submitted by citizens</div>
       </div>
@@ -1173,6 +1234,23 @@ export async function renderDashboardContent(el, router) {
     animateCount(document.getElementById('count-open'), open);
     animateCount(document.getElementById('count-resolved'), resolved);
     animateCount(document.getElementById('count-inprog'), inProg);
+
+    // Mock trend data for last 14 days
+    const mockLabels = Array.from({length: 14}, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (13 - i));
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const mockSubmitted = Array.from({length: 14}, () => Math.floor(Math.random() * 20) + 5);
+    const mockResolved = mockSubmitted.map(v => Math.max(0, v - Math.floor(Math.random() * 10)));
+    
+    setTimeout(() => {
+      drawTrendChart({
+        labels: mockLabels,
+        submitted: mockSubmitted,
+        resolved: mockResolved
+      });
+    }, 100);
 
     const recentIssues = allData.content || [];
     const tableEl = document.getElementById('recent-issues-table');
